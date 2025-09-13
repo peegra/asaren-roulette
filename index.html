@@ -179,18 +179,23 @@ function spinRoulette() {
 
 // ====== 初期描画 ======
 drawRoulette();
+let audioUnlocked = false;
+
 document.getElementById('spin').addEventListener('click', function() {
-  // すべてのaudioを一度再生して即停止（iOS/Safari対策）
-  [spinAudio, winAudio1, winAudio2, winAudio3].forEach(audio => {
-    try {
-      audio.muted = true;
-      audio.play().then(() => {
-        audio.pause();
-        audio.currentTime = 0;
-        audio.muted = false;
-      });
-    } catch(e) {}
-  });
+  // win系だけプリロード（無音再生）
+  if (!audioUnlocked) {
+    [winAudio1, winAudio2, winAudio3].forEach(audio => {
+      try {
+        audio.muted = true;
+        audio.play().then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.muted = false;
+        });
+      } catch(e) {}
+    });
+    audioUnlocked = true;
+  }
 
   document.getElementById('result').textContent = ""; // 回すたびにリセット
   spinRoulette();
