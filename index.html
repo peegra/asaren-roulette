@@ -8,7 +8,7 @@
 <body>
   <div class="center-container">
     <div class="canvas-area">
-      <canvas id="canvas" width="300" height="300"></canvas>
+      <canvas id="canvas" width="1000" height="1000"></canvas>
     </div>
     <div id="arrow">&#x25B2;</div>
     <div id="result"></div>
@@ -35,8 +35,10 @@ const ctx = canvas.getContext('2d');
 
 // ルーレットの項目と色
 const items = [
-  "A","B","C","D","E","F","G","H","I","J",
-  "K","L","M","N","O","P","Q","R","S","T"
+  "足足頭頭25m","世界逆一周","3タッチ回転3回","胸キャッチ2回","JUMPトラップ5m x 5回",
+  "アラウンドザワールド","インインアウトアウト 10周","右肩 6回","アウト乗せ 3回","背中キャッチ 2回",
+  "右ちょん10m","頭のみ10m","足乗せ両足背中キャッチ","足足胸JUMP 25m","たまごちゃん 3m",
+  "足足肩シュート","ももダッシュ25m","ショルダーロール","そうまリフティング 25m","つまさきダッシュ 25m"
 ];
 const colors = [
   "#FF6384","#36A2EB","#FFCE56","#4BC0C0","#9966FF",
@@ -53,35 +55,47 @@ const winAudio = document.getElementById('win-audio');   // 当たりの音
 // ====== ルーレット描画関数 ======
 function drawRoulette() {
   const arc = (2 * Math.PI) / items.length;
-  // 6時方向（下）を0ラジアンにするためMath.PI/2を引く
-  const base = angle - Math.PI / 2;
+  // 6時方向（下）を0ラジアンにする
+  const base = angle;
   for (let i = 0; i < items.length; i++) {
     ctx.beginPath();
-    ctx.moveTo(150, 150);
+    ctx.moveTo(500, 500);
     ctx.fillStyle = colors[i];
-    ctx.arc(150, 150, 150, base + i * arc, base + (i + 1) * arc);
+    ctx.arc(500, 500, 500, base + i * arc, base + (i + 1) * arc);
     ctx.fill();
 
     // 文字の描画
     ctx.save();
-    ctx.translate(150, 150);
+    ctx.translate(500, 500);
     ctx.rotate(base + (i + 0.5) * arc);
     ctx.fillStyle = "#000";
     ctx.textAlign = "right";
-    ctx.font = "16px sans-serif";
-    ctx.fillText(items[i], 140, 5);
+    ctx.font = "32px sans-serif";
+    ctx.fillText(items[i], 490, 10);
     ctx.restore();
   }
 }
 
-// ====== 当選項目を取得する関数 ======
 function getResultItem() {
   const arc = (2 * Math.PI) / items.length;
-  let normalized = (angle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
-  // 6時方向（下）が当選位置になるように+Math.PI/2
-  let pointerAngle = (normalized + Math.PI / 2) % (2 * Math.PI);
-  let idx = Math.floor(pointerAngle / arc) % items.length;
-  return items[idx];
+  // 6時方向（下）はcanvas基準でMath.PI/2ラジアン
+  // 現在のangle分だけ回転しているので、実際の6時方向の角度は
+  // (Math.PI/2 - angle) を 0～2πに正規化
+  let pointer = (Math.PI / 2 - angle + 2 * Math.PI) % (2 * Math.PI);
+
+  // どの扇形に含まれるか判定
+  for (let i = 0; i < items.length; i++) {
+    let start = (i * arc) % (2 * Math.PI);
+    let end = ((i + 1) * arc) % (2 * Math.PI);
+    // 扇形が0をまたぐ場合も考慮
+    if (start < end) {
+      if (pointer >= start && pointer < end) return items[i];
+    } else {
+      if (pointer >= start || pointer < end) return items[i];
+    }
+  }
+  // 念のため
+  return items[0];
 }
 
 // ====== ルーレット回転処理 ======
@@ -115,7 +129,7 @@ function spinRoulette() {
     const eased = 1 - Math.pow(1 - t, 3);
     angle = startAngle + (endAngle - startAngle) * eased;
 
-    ctx.clearRect(0, 0, 300, 300);
+    ctx.clearRect(0, 0, 1000, 1000);
     drawRoulette();
 
     if (currentFrame >= totalFrames) {
