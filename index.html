@@ -1,21 +1,8 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<title>LIFFルーレット</title>
-<style>
-  body { text-align: center; font-family: sans-serif; margin-top: 50px; }
-  #canvas { border: 2px solid #000; margin-top: 20px; }
-  #spin { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
-</style>
-</head>
-<body>
-
-<h1>ルーレット</h1>
-<canvas id="canvas" width="300" height="300"></canvas>
-<br>
+<!-- ...既存コード... -->
 <button id="spin">回す</button>
-
+<audio id="spin-audio" src="spin.mp3"></audio>
+<audio id="win-audio" src="win.mp3"></audio>
+<!-- ...既存コード... -->
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
 const liffId = "YOUR_LIFF_ID"; // ここにLIFF IDを入れる
@@ -33,6 +20,10 @@ const ctx = canvas.getContext('2d');
 const items = ["A","B","C","D","E"];
 const colors = ["#FF6384","#36A2EB","#FFCE56","#4BC0C0","#9966FF"];
 let angle = 0;
+
+// 音声
+const spinAudio = document.getElementById('spin-audio');
+const winAudio = document.getElementById('win-audio');
 
 // ルーレット描画
 function drawRoulette() {
@@ -57,22 +48,37 @@ function drawRoulette() {
 }
 
 // ルーレット回転
+let spinning = false;
 function spinRoulette() {
-  let rotation = Math.random() * 10 + 10; // 回転量
-  const step = 0.05;
+  if (spinning) return;
+  spinning = true;
+  document.getElementById('spin').disabled = true;
+
+  // 音再生
+  spinAudio.currentTime = 0;
+  spinAudio.play();
+
+  let rotation = Math.random() * 3 + 3; // 回転量を短く
+  const step = 0.15; // 速く回す
   const interval = setInterval(() => {
     angle += step;
     rotation -= step;
     ctx.clearRect(0, 0, 300, 300);
     drawRoulette();
-    if(rotation <= 0) clearInterval(interval);
-  }, 20);
+    if(rotation <= 0) {
+      clearInterval(interval);
+      spinAudio.pause();
+      spinAudio.currentTime = 0;
+      winAudio.currentTime = 0;
+      winAudio.play();
+      spinning = false;
+      document.getElementById('spin').disabled = false;
+    }
+  }, 16); // 60fps
 }
 
 // 初期描画
 drawRoulette();
 document.getElementById('spin').addEventListener('click', spinRoulette);
 </script>
-
-</body>
-</html>
+<!-- ...既存コード... -->
