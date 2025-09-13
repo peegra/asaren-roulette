@@ -1,10 +1,22 @@
-<!-- キャンバスとボタン、音声ファイル -->
-<canvas id="canvas" width="300" height="300"></canvas>
-<button id="spin">回す</button>
-<audio id="spin-audio" src="spin.mp3"></audio>
-<audio id="win-audio" src="win.mp3"></audio>
-
-<!-- LINE LIFF SDK -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ルーレット</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="center-container">
+    <div class="canvas-area">
+      <canvas id="canvas" width="300" height="300"></canvas>
+    </div>
+    <div id="arrow">&#x25B2;</div>
+    <div id="result"></div>
+    <button id="spin">回す</button>
+    <audio id="spin-audio" src="spin.mp3"></audio>
+    <audio id="win-audio" src="win.mp3"></audio>
+  </div>
+  <!-- LINE LIFF SDK -->
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
 // ====== LIFF 初期化 ======
@@ -22,8 +34,16 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 // ルーレットの項目と色
-const items = ["A","B","C","D","E"];
-const colors = ["#FF6384","#36A2EB","#FFCE56","#4BC0C0","#9966FF"];
+const items = [
+  "A","B","C","D","E","F","G","H","I","J",
+  "K","L","M","N","O","P","Q","R","S","T"
+];
+const colors = [
+  "#FF6384","#36A2EB","#FFCE56","#4BC0C0","#9966FF",
+  "#FF9F40","#FF6384","#36A2EB","#FFCE56","#4BC0C0",
+  "#9966FF","#FF9F40","#FF6384","#36A2EB","#FFCE56",
+  "#4BC0C0","#9966FF","#FF9F40","#FF6384","#36A2EB"
+];
 let angle = 0; // ルーレットの初期角度
 
 // ====== 音声設定 ======
@@ -32,25 +52,36 @@ const winAudio = document.getElementById('win-audio');   // 当たりの音
 
 // ====== ルーレット描画関数 ======
 function drawRoulette() {
-  const arc = (2 * Math.PI) / items.length; // 1区画の角度
+  const arc = (2 * Math.PI) / items.length;
+  // 6時方向（下）を0ラジアンにするためMath.PI/2を引く
+  const base = angle - Math.PI / 2;
   for (let i = 0; i < items.length; i++) {
-    // 扇形の描画
     ctx.beginPath();
-    ctx.moveTo(150, 150); // 中心からスタート
+    ctx.moveTo(150, 150);
     ctx.fillStyle = colors[i];
-    ctx.arc(150, 150, 150, angle + i*arc, angle + (i+1)*arc);
+    ctx.arc(150, 150, 150, base + i * arc, base + (i + 1) * arc);
     ctx.fill();
-    
+
     // 文字の描画
     ctx.save();
-    ctx.translate(150, 150); // 中心を基準に移動
-    ctx.rotate(angle + (i+0.5)*arc); // 扇形の中央に文字を回転配置
+    ctx.translate(150, 150);
+    ctx.rotate(base + (i + 0.5) * arc);
     ctx.fillStyle = "#000";
     ctx.textAlign = "right";
     ctx.font = "16px sans-serif";
     ctx.fillText(items[i], 140, 5);
     ctx.restore();
   }
+}
+
+// ====== 当選項目を取得する関数 ======
+function getResultItem() {
+  const arc = (2 * Math.PI) / items.length;
+  let normalized = (angle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+  // 6時方向（下）が当選位置になるように+Math.PI/2
+  let pointerAngle = (normalized + Math.PI / 2) % (2 * Math.PI);
+  let idx = Math.floor(pointerAngle / arc) % items.length;
+  return items[idx];
 }
 
 // ====== ルーレット回転処理 ======
@@ -65,34 +96,53 @@ function spinRoulette() {
   spinAudio.currentTime = 0;
   spinAudio.play();
 
-  // 回転量（3〜6ラウンドぐらい）
-  let rotation = Math.random() * 10 + 20; 
-  const step = 0.15; // 回転スピード
+  // 回転音の長さ（秒）を取得
+  const spinDuration = spinAudio.duration || 2; // durationが0の場合は2秒に仮設定
 
-  // 回転アニメーション
+  // アニメーション設定
+  const fps = 60;
+  const totalFrames = Math.floor(spinDuration * fps);
+  let currentFrame = 0;
+  const startAngle = angle;
+  // 最終的にランダムな位置で止める
+  const endAngle = startAngle + Math.PI * 4 + Math.random() * 2 * Math.PI; // 4回転＋ランダム
+
   const interval = setInterval(() => {
-    angle += step;     // 角度を進める
-    rotation -= step;  // 残り回転量を減らす
-    ctx.clearRect(0, 0, 300, 300); // 描画リセット
-    drawRoulette(); // 再描画
+    currentFrame++;
+    // イージングで減速
+    const t = currentFrame / totalFrames;
+    // easeOutCubic
+    const eased = 1 - Math.pow(1 - t, 3);
+    angle = startAngle + (endAngle - startAngle) * eased;
 
-    // 回転終了判定
-    if(rotation <= 0) {
+    ctx.clearRect(0, 0, 300, 300);
+    drawRoulette();
+
+    if (currentFrame >= totalFrames) {
       clearInterval(interval);
-      // 回転音を止める
       spinAudio.pause();
       spinAudio.currentTime = 0;
-      // 当たり音を再生
       winAudio.currentTime = 0;
       winAudio.play();
-      // 状態をリセット
       spinning = false;
-      document.getElementById('spin').disabled = false; // ボタン有効化
+      document.getElementById('spin').disabled = false;
+
+      // 角度を0～2πに正規化
+      angle = (angle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+
+      // 当選項目を表示
+      const resultItem = getResultItem();
+      document.getElementById('result').textContent = resultItem;
     }
-  }, 16); // 約60fps
+  }, 1000 / fps);
 }
 
 // ====== 初期描画 ======
 drawRoulette();
-document.getElementById('spin').addEventListener('click', spinRoulette);
+document.getElementById('spin').addEventListener('click', function() {
+  document.getElementById('result').textContent = ""; // 回すたびにリセット
+  spinRoulette();
+});
 </script>
+</body>
+</html>
