@@ -41,22 +41,24 @@ html, body {
 #spin {
   display: block;
   margin: 2vw auto 0 auto;
-  font-size: 2vw;
-  padding: 1vw 4vw;
+  font-size: 6.25vw;      /* 2.5倍 */
+  padding: 3vw 12.5vw;    /* 2.5倍 */
+  border-radius: 5vw;     /* 2.5倍 */
 }
 #result {
   width: 90vw;
   max-width: 90vh;
   text-align: center;
   margin: 1vw auto 0;
-  font-size: 2.5vw;
+  font-size: 6.25vw;      /* 2.5倍 (2.5vw × 2.5 = 6.25vw) */
   font-weight: bold;
 }
 .rich-btn {
   display: block;
   margin: 2vw auto 0 auto;
-  font-size: 2.5vw;
-  padding: 1.2vw 5vw;
+  font-size: 6.25vw;      /* 2.5倍 */
+  padding: 3vw 12.5vw;    /* 2.5倍 */
+  border-radius: 5vw;     /* 2.5倍 */
   background: linear-gradient(90deg, #ffde59 0%, #ff914d 100%);
   color: #333;
   border: none;
@@ -75,4 +77,8 @@ html, body {
   display: flex;
   align-items: center;
   gap: 0.5vw;
+}
+.btn-text img {
+  width: 2.5em;           /* 2.5倍 */
+  height: 2.5em;
 }
