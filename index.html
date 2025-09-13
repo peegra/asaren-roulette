@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>LIFFルーレット</title>
+<style>
+  body { text-align: center; font-family: sans-serif; margin-top: 50px; }
+  #canvas { border: 2px solid #000; margin-top: 20px; }
+  #spin { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
+</style>
+</head>
+<body>
+
+<h1>ルーレット</h1>
+<canvas id="canvas" width="300" height="300"></canvas>
+<br>
+<button id="spin">回す</button>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+const liffId = "YOUR_LIFF_ID"; // ここにLIFF IDを入れる
+
+// LIFF初期化
+liff.init({ liffId }).then(() => {
+  if (!liff.isLoggedIn()) {
+    liff.login({ redirectUri: window.location.href });
+  }
+});
+
+// ルーレット設定
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const items = ["A","B","C","D","E"];
+const colors = ["#FF6384","#36A2EB","#FFCE56","#4BC0C0","#9966FF"];
+let angle = 0;
+
+// ルーレット描画
+function drawRoulette() {
+  const arc = (2 * Math.PI) / items.length;
+  for (let i = 0; i < items.length; i++) {
+    ctx.beginPath();
+    ctx.moveTo(150, 150);
+    ctx.fillStyle = colors[i];
+    ctx.arc(150, 150, 150, angle + i*arc, angle + (i+1)*arc);
+    ctx.fill();
+    
+    // 文字
+    ctx.save();
+    ctx.translate(150, 150);
+    ctx.rotate(angle + (i+0.5)*arc);
+    ctx.fillStyle = "#000";
+    ctx.textAlign = "right";
+    ctx.font = "16px sans-serif";
+    ctx.fillText(items[i], 140, 5);
+    ctx.restore();
+  }
+}
+
+// ルーレット回転
+function spinRoulette() {
+  let rotation = Math.random() * 10 + 10; // 回転量
+  const step = 0.05;
+  const interval = setInterval(() => {
+    angle += step;
+    rotation -= step;
+    ctx.clearRect(0, 0, 300, 300);
+    drawRoulette();
+    if(rotation <= 0) clearInterval(interval);
+  }, 20);
+}
+
+// 初期描画
+drawRoulette();
+document.getElementById('spin').addEventListener('click', spinRoulette);
+</script>
+
+</body>
+</html>
