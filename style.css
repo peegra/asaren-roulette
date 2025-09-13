@@ -4,12 +4,12 @@ html, body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  /* 斜めストライプの芝生風背景 */
+  /* 斜めストライプの芝生風背景（ストライプを太く） */
   background:
     repeating-linear-gradient(
       135deg,
-      #3cb371 0 6vw,
-      #18e6a3 6vw 12vw
+      #3cb371 0 12vw,
+      #a8e6a3 12vw 24vw
     );
   position: relative;
   overflow: hidden;
