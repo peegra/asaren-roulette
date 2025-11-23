@@ -70,24 +70,28 @@ html, body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 16px; /* パディングを小さくした */
-  font-size: 14px; /* フォントサイズを小さくした */
-  border: none; /* ボーダーを削除 */
-  border-radius: 4px; /* 角を丸くする */
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.1s; /* ホバー時のトランジション */
-  background-color: #FFEB3B; /* ボタンの背景色 */
-  color: #003366; /* ボタンの文字色 */
+  transition: background-color 0.2s ease, transform 0.08s ease, filter 0.12s;
+  /* 明るい黄色のグラデーションに変更（メニュー専用） */
+  background: linear-gradient(180deg, #FFF176 0%, #FFCA28 100%);
+  color: #003366; /* 紺色の文字 */
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+  box-sizing: border-box;
 }
 
 /* ボタンのホバー時のスタイル */
 .action-btn:hover {
-  background-color: #FFC107; /* ホバー時の背景色 */
+  filter: brightness(0.98);
 }
 
 /* ボタンのアクティブ時のスタイル */
 .action-btn:active {
-  transform: scale(0.95); /* 押下時の縮小 */
+  transform: translateY(1px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
 }
 
 /* 挑戦ボタンのスタイル */
@@ -160,16 +164,6 @@ html, body {
   margin: 0 auto 2vw auto;
   justify-items: stretch;                /* 各セルを幅いっぱいに */
   align-items: center;
-  box-sizing: border-box;
-}
-
-.action-buttons .action-btn {
-  width: 100%;           /* セル内で幅いっぱいに */
-  max-width: none;
-  padding: clamp(10px, 2.2vw, 14px) clamp(14px, 3.5vw, 24px);
-  font-size: clamp(14px, 3.4vw, 20px);
-  border-radius: 12px;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
   box-sizing: border-box;
 }
 
