@@ -4,18 +4,10 @@ html, body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  /* 斜めストライプの芝生風背景（ストライプを太く） */
-  background:
-    repeating-linear-gradient(
-      135deg,
-      #3cb371 0 12vw,
-      #a8e6a3 12vw 24vw
-    );
+  background: repeating-linear-gradient(135deg, #3cb371 0 12vw, #a8e6a3 12vw 24vw);
   position: relative;
   overflow: hidden;
 }
-
-/* サッカーコートの白線は削除（body::before, body::afterも削除） */
 
 .center-container {
   width: 100%;
@@ -28,6 +20,7 @@ html, body {
   position: relative;
   z-index: 1;
 }
+
 .canvas-area {
   width: 90vw;
   max-width: 90vh;
@@ -39,12 +32,14 @@ html, body {
   align-items: center;
   justify-content: center;
 }
+
 #canvas {
   width: 100%;
   height: 100%;
   display: block;
   margin: 0 auto;
 }
+
 #arrow {
   position: static;
   font-size: 2.5vw;
@@ -52,6 +47,7 @@ html, body {
   text-align: center;
   margin: 0 auto;
 }
+
 #spin {
   display: block;
   margin: 2vw auto 0 auto;
@@ -59,6 +55,7 @@ html, body {
   padding: 3vw 12.5vw;
   border-radius: 5vw;
 }
+
 #result {
   width: 90vw;
   max-width: 90vh;
@@ -67,50 +64,67 @@ html, body {
   font-size: 6.25vw;
   font-weight: bold;
 }
+
+/* ボタンの基本スタイル */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px; /* パディングを小さくした */
+  font-size: 14px; /* フォントサイズを小さくした */
+  border: none; /* ボーダーを削除 */
+  border-radius: 4px; /* 角を丸くする */
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.1s; /* ホバー時のトランジション */
+  background-color: #FFEB3B; /* ボタンの背景色 */
+  color: #003366; /* ボタンの文字色 */
+}
+
+/* ボタンのホバー時のスタイル */
+.action-btn:hover {
+  background-color: #FFC107; /* ホバー時の背景色 */
+}
+
+/* ボタンのアクティブ時のスタイル */
+.action-btn:active {
+  transform: scale(0.95); /* 押下時の縮小 */
+}
+
+/* 挑戦ボタンのスタイル */
 .rich-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6vw;
-  white-space: nowrap;
-  margin: 2vw auto 0 auto;
-  /* 幅を広めにしてレスポンシブに調整 */
-  padding: clamp(12px, 3vw, 28px) clamp(24px, 9vw, 48px);
-  font-size: clamp(16px, 4.5vw, 28px);
-  min-width: clamp(160px, 34vw, 360px); /* ここを広げた */
-  max-width: clamp(220px, 60vw, 600px);
-  border-radius: 1.2vw;
-  background: linear-gradient(90deg, #ffde59 0%, #ff914d 100%);
-  color: #333;
-  border: none;
-  box-shadow: 0 0.5vw 1vw rgba(0,0,0,0.15);
-  font-weight: bold;
+  padding: 12px 24px; /* パディングを調整 */
+  font-size: 16px; /* フォントサイズを調整 */
+  border: none; /* ボーダーを削除 */
+  border-radius: 4px; /* 角を丸くする */
   cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.1s;
-  letter-spacing: 0.1em;
-  overflow: visible;
+  transition: background-color 0.3s, transform 0.1s; /* ホバー時のトランジション */
+  background-color: #FF914D; /* 挑戦ボタンの背景色 */
+  color: #fff; /* 挑戦ボタンの文字色 */
 }
+
+/* 挑戦ボタンのホバー時のスタイル */
+.rich-btn:hover {
+  background-color: #FF6F3C; /* ホバー時の背景色 */
+}
+
+/* 挑戦ボタンのアクティブ時のスタイル */
 .rich-btn:active {
-  transform: scale(0.97);
-  box-shadow: 0 0.2vw 0.5vw rgba(0,0,0,0.18);
+  transform: scale(0.95); /* 押下時の縮小 */
 }
-.btn-text {
-  display: flex;
-  align-items: center;
-  gap: 0.5vw;
-}
-.btn-text img {
-  width: 2.5em;
-  height: 2.5em;
-}
+
+/* その他のスタイル */
 .header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* 追加 */
-  text-align: center;      /* 追加 */
+  justify-content: center;
+  text-align: center;
   margin-bottom: 2vw;
 }
+
 .logo {
   display: block;
   margin: 0 auto 1vw auto;
@@ -118,6 +132,7 @@ html, body {
   max-width: 80px;
   height: auto;
 }
+
 .title {
   font-family: 'Nico Moji', 'Rounded Mplus 1c', 'Arial Rounded MT Bold', 'Arial', sans-serif;
   font-size: 5vw;
@@ -127,6 +142,7 @@ html, body {
   letter-spacing: 0.1em;
   text-align: center;
 }
+
 .comment {
   font-size: 2.5vw;
   color: #f8fff8;
@@ -135,53 +151,36 @@ html, body {
   text-align: center;
 }
 
-/* Google FontsのNico MojiとRounded M+ 1cを利用（index.htmlの<head>にもlinkを追加してください） */
+/* 追加：メニューボタンを2列2行に配置し各ボタンを横幅いっぱいにする */
+.action-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2列 */
+  gap: clamp(8px, 2vw, 16px);            /* 列・行の間隔 */
+  width: min(640px, 90vw);               /* 全体幅の上限 */
+  margin: 0 auto 2vw auto;
+  justify-items: stretch;                /* 各セルを幅いっぱいに */
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.action-buttons .action-btn {
+  width: 100%;           /* セル内で幅いっぱいに */
+  max-width: none;
+  padding: clamp(10px, 2.2vw, 14px) clamp(14px, 3.5vw, 24px);
+  font-size: clamp(14px, 3.4vw, 20px);
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+  box-sizing: border-box;
+}
+
+/* 小さい画面では縦1列にしたければ以下を有効にする（任意） */
+@media (max-width: 360px) {
+  .action-buttons { grid-template-columns: 1fr; }
+}
+
+/* Google FontsのNico MojiとRounded M+ 1cを利用 */
 @import url('https://fonts.googleapis.com/css2?family=Nico+Moji&family=Rounded+Mplus+1c:wght@500;700&display=swap');
 
 body, html {
   font-family: 'Rounded Mplus 1c', 'Nico Moji', 'Arial Rounded MT Bold', 'Arial', sans-serif;
-}
-
-.title {
-  font-family: 'Nico Moji', 'Rounded Mplus 1c', 'Arial Rounded MT Bold', 'Arial', sans-serif;
-  font-size: 5vw;
-  color: #fff;
-  margin: 0 0 0.5vw 0;
-  text-shadow: 0 0.3vw 1vw rgba(0,0,0,0.2);
-  letter-spacing: 0.1em;
-  text-align: center;
-}
-
-.comment, #result, .btn-text, #spin, .rich-btn {
-  font-family: 'Rounded Mplus 1c', 'Nico Moji', 'Arial Rounded MT Bold', 'Arial', sans-serif;
-}
-.action-buttons {
-  display: flex;
-  gap: 2vw;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 2vw;
-  flex-wrap: wrap;
-}
-
-.action-btn {
-  background: linear-gradient(180deg, #FFEB3B 0%, #FFC107 100%);
-  color: #003366;
-  border: 0.12rem solid rgba(0, 0, 0, 0.08);
-  border-radius: 0.8rem;
-  padding: clamp(8px, 1.2vw, 14px) clamp(16px, 3.5vw, 26px); /* 横パディングを少し増やした */
-  font-size: clamp(12px, 2vw, 16px);
-  min-width: clamp(100px, 22vw, 160px); /* 幅を少し広げた */
-  max-width: clamp(160px, 40vw, 260px);
-  box-shadow: 0 0.4vw 0.8vw rgba(0,0,0,0.08);
-  cursor: pointer;
-  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.12s;
-  font-family: 'Rounded Mplus 1c', 'Nico Moji', sans-serif;
-}
-.action-btn:hover {
-  filter: brightness(0.98);
-}
-.action-btn:active {
-  transform: translateY(0.2vw);
-  box-shadow: 0 0.2vw 0.4vw rgba(0,0,0,0.12);
 }
