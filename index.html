@@ -322,25 +322,31 @@ loadItemsFromSheet('A');
 </script>
 
 <script>
-// DOM が準備できたらボタンにクラスを再付与して強制リフロー
+// DOM が準備できたらボタンのクラスを正しく再付与して強制リフロー
 window.addEventListener('DOMContentLoaded', () => {
-  const btns = document.querySelectorAll('.action-btn, .rich-btn, #spin');
-  btns.forEach(b => {
-    // 再付与で CSS の優先度や継承のズレを解消
-    b.classList.remove('action-btn','rich-btn');
+  // action ボタン群は action-btn のみを維持（rich-btn は削除）
+  document.querySelectorAll('.action-btn').forEach(b => {
+    b.classList.remove('rich-btn');
+    if (!b.classList.contains('action-btn')) b.classList.add('action-btn');
     void b.offsetWidth; // 強制リフロー
-    b.classList.add('action-btn','rich-btn');
-    // もし個別のIDで使っている場合は確実に付与
-    if (b.id === 'spin') b.classList.add('rich-btn');
   });
 
-  // Web フォント遅延読み込み対策（あれば）
-  document.fonts && document.fonts.ready.then(() => {
-    // フォント読み込み後に再描画が必要ならここで再描画処理を呼ぶ
-    if (typeof drawRoulette === 'function') {
-      drawRoulette();
-    }
-  });
+  // spin ボタンは rich-btn のみを維持
+  const spinBtn = document.getElementById('spin');
+  if (spinBtn) {
+    spinBtn.classList.remove('action-btn');
+    if (!spinBtn.classList.contains('rich-btn')) spinBtn.classList.add('rich-btn');
+    void spinBtn.offsetWidth;
+  }
+
+  // フォント読み込み後にルーレットを再描画（必要なら）
+  if (document.fonts) {
+    document.fonts.ready.then(() => {
+      if (typeof drawRoulette === 'function') drawRoulette();
+    });
+  } else {
+    if (typeof drawRoulette === 'function') drawRoulette();
+  }
 });
 </script>
 </body>
