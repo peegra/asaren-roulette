@@ -23,6 +23,7 @@
     <button id="spin" class="rich-btn">
       <span class="btn-text">挑戦！！</span>
     </button>
+    <!-- 更新ボタンを削除しました -->
     <audio id="spin-audio" src="spin.mp3"></audio>
     <audio id="win-audio1" src="win1.mp3"></audio>
     <audio id="win-audio2" src="win2.mp3"></audio>
@@ -47,18 +48,80 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 // ルーレットの項目と色
-const items = [
-  "足足頭頭25m","世界逆一周","3タッチ回転3回","胸キャッチ2回","JUMPトラップ5m x 5回",
-  "アラウンドザワールド","インインアウトアウト 10周","右肩 6回","アウト乗せ 3回","背中キャッチ 2回",
-  "右ちょん10m","頭のみ10m","足乗せ両足背中キャッチ","足足胸JUMP 25m","たまごちゃん 3m",
-  "足足肩シュート","ももダッシュ25m","ショルダーロール","そうまリフティング 25m","地面バウンド3種類"
-];
-// 虹色を20分割して一周させる（彩度と明度を落として落ち着いた色に）
-const colors = Array.from({length: 20}, (_, i) => {
-  const hue = Math.round((i / 20) * 360);
-  return `hsl(${hue}, 100%, 70%)`; // 彩度60%、明度45%で落ち着いた色
-});
+let items = []; // スプレッドシートから読み込むので空にしておく
+
+// スプレッドシート設定（必要に応じて gid を変更）
+const SHEET_ID = '1OYx8j7IMjg1_rbSd8nq8Hbidz601uNWiEYFrIelEGR4';
+const SHEET_GID = '233683813'; // 「ルーレット」シートの gid
+let colors = [];
 let angle = 0; // ルーレットの初期角度
+
+// スプレッドシート（CSV）から項目を読み込む
+async function loadItemsFromSheet() {
+  try {
+    // gviz endpoint を使いタイムスタンプで強制再取得
+    const baseUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}`;
+    const url = `${baseUrl}&t=${Date.now()}`;
+    console.log('fetching sheet url=', url);
+    const res = await fetch(url, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        Pragma: 'no-cache'
+      }
+    });
+
+    if (!res.ok) throw new Error('スプレッドシート取得失敗: ' + res.status);
+
+    const text = await res.text();
+    console.log('loadItemsFromSheet: fetched length=', text.length);
+    // デバッグ: 先頭をログに出す（長すぎないよう）
+    console.log('loadItemsFromSheet: sample=', text.slice(0, 500).replace(/\n/g,'\\n'));
+    const rows = text.split(/\r?\n/).map(r => r.trim()).filter(r => r.length > 0);
+
+    // CSV の各行から「A列（1列目）」だけを取り出す
+    // 1列目は引用符で囲まれている場合や "" エスケープにも対応
+    items = rows.map(line => {
+      const m = line.match(/^("(?:[^"]|"")*"|[^,]*)/);
+      let first = m ? m[1] : '';
+      if (!first) return '';
+      if (first.startsWith('"') && first.endsWith('"')) {
+        first = first.slice(1, -1).replace(/""/g, '"');
+      }
+      return first.trim();
+    }).filter(v => v.length > 0); // 空行除去
+
+    console.log('loadItemsFromSheet: items =', items);
+
+    // 固定で20分割の虹色パレットを作り、items に対して循環割当する
+    const palette20 = Array.from({ length: 20 }, (_, j) => {
+      const hue = Math.round((j / 20) * 360);
+      return `hsl(${hue}, 90%, 55%)`;
+    });
+    colors = items.map((_, i) => palette20[i % 20]);
+
+    // 描画（読み込み後に初回描画）
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawRoulette();
+  } catch (e) {
+    console.error('loadItemsFromSheet error:', e);
+    // フォールバックの項目（既存の固定リストを入れるなど）
+    items = [
+      "足足頭頭25m","世界逆一周","3タッチ回転3回","胸キャッチ2回","JUMPトラップ5m x 5回",
+      "アラウンドザワールド","インインアウトアウト 10周","右肩 6回","アウト乗せ 3回","背中キャッチ 2回",
+      "右ちょん10m","頭のみ10m","足乗せ両足背中キャッチ","足足胸JUMP 25m","たまごちゃん 3m",
+      "足足肩シュート","ももダッシュ25m","ショルダーロール","そうまリフティング 25m","地面バウンド3種類"
+    ];
+    const palette20 = Array.from({ length: 20 }, (_, j) => {
+      const hue = Math.round((j / 20) * 360);
+      return `hsl(${hue}, 90%, 55%)`;
+    });
+    colors = items.map((_, i) => palette20[i % 20]);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawRoulette();
+  }
+}
 
 // ====== 音声設定 ======
 const spinAudio = document.getElementById('spin-audio'); // 回転中の音
@@ -178,7 +241,9 @@ function spinRoulette() {
 }
 
 // ====== 初期描画 ======
-drawRoulette();
+// drawRoulette();
+loadItemsFromSheet();
+
 let audioUnlocked = false;
 
 document.getElementById('spin').addEventListener('click', async function() {
@@ -203,6 +268,8 @@ document.getElementById('spin').addEventListener('click', async function() {
   document.getElementById('result').textContent = ""; // 回すたびにリセット
   spinRoulette();
 });
+
+// 更新ボタンとそのイベントリスナーを削除しました
 </script>
 </body>
 </html>
