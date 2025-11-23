@@ -102,7 +102,7 @@ html, body {
   cursor: pointer;
   transition: background-color 0.3s, transform 0.1s; /* ホバー時のトランジション */
   background-color: #FF914D; /* 挑戦ボタンの背景色 */
-  color: #fff; /* 挑戦ボタンの文字色 */
+  color: #000000; /* 挑戦ボタンの文字色 */
 }
 
 /* 挑戦ボタンのホバー時のスタイル */
