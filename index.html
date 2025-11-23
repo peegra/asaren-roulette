@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>ルーレット</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- style.css を確実に読み込む -->
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Nico+Moji&family=Rounded+Mplus+1c:wght@500;700&display=swap" rel="stylesheet">
 </head>
@@ -15,13 +15,20 @@
       <h1 class="title">ASARENルーレット</h1>
       <p class="comment">今日のメニューは何かな？ルーレットを回してみよう！</p>
     </div>
+    <!-- 追加: メニュー選択ボタン -->
+    <div class="action-buttons">
+      <button id="btn-shoot" class="action-btn">シュート</button>
+      <button id="btn-juggle" class="action-btn">リフティング</button>
+      <button id="btn-tech" class="action-btn">テクニック</button>
+      <button id="btn-beginner" class="action-btn">ビギナー</button> <!-- 新しいボタン -->
+    </div>
     <div class="canvas-area">
       <canvas id="canvas" width="1000" height="1000"></canvas>
     </div>
     <div id="arrow">&#x25B2;</div>
     <div id="result"></div>
     <button id="spin" class="rich-btn">
-      <span class="btn-text">挑戦！！</span>
+      <span class="btn-text">挑戦！</span>
     </button>
     <!-- 更新ボタンを削除しました -->
     <audio id="spin-audio" src="spin.mp3"></audio>
@@ -270,6 +277,29 @@ document.getElementById('spin').addEventListener('click', async function() {
 });
 
 // 更新ボタンとそのイベントリスナーを削除しました
+</script>
+
+<script>
+// DOM が準備できたらボタンにクラスを再付与して強制リフロー
+window.addEventListener('DOMContentLoaded', () => {
+  const btns = document.querySelectorAll('.action-btn, .rich-btn, #spin');
+  btns.forEach(b => {
+    // 再付与で CSS の優先度や継承のズレを解消
+    b.classList.remove('action-btn','rich-btn');
+    void b.offsetWidth; // 強制リフロー
+    b.classList.add('action-btn','rich-btn');
+    // もし個別のIDで使っている場合は確実に付与
+    if (b.id === 'spin') b.classList.add('rich-btn');
+  });
+
+  // Web フォント遅延読み込み対策（あれば）
+  document.fonts && document.fonts.ready.then(() => {
+    // フォント読み込み後に再描画が必要ならここで再描画処理を呼ぶ
+    if (typeof drawRoulette === 'function') {
+      drawRoulette();
+    }
+  });
+});
 </script>
 </body>
 </html>

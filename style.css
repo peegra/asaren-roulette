@@ -68,11 +68,18 @@ html, body {
   font-weight: bold;
 }
 .rich-btn {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6vw;
+  white-space: nowrap;
   margin: 2vw auto 0 auto;
-  font-size: 6.25vw;
-  padding: 3vw 12.5vw;
-  border-radius: 5vw;
+  /* 幅を広めにしてレスポンシブに調整 */
+  padding: clamp(12px, 3vw, 28px) clamp(24px, 9vw, 48px);
+  font-size: clamp(16px, 4.5vw, 28px);
+  min-width: clamp(160px, 34vw, 360px); /* ここを広げた */
+  max-width: clamp(220px, 60vw, 600px);
+  border-radius: 1.2vw;
   background: linear-gradient(90deg, #ffde59 0%, #ff914d 100%);
   color: #333;
   border: none;
@@ -81,6 +88,7 @@ html, body {
   cursor: pointer;
   transition: transform 0.1s, box-shadow 0.1s;
   letter-spacing: 0.1em;
+  overflow: visible;
 }
 .rich-btn:active {
   transform: scale(0.97);
@@ -146,4 +154,34 @@ body, html {
 
 .comment, #result, .btn-text, #spin, .rich-btn {
   font-family: 'Rounded Mplus 1c', 'Nico Moji', 'Arial Rounded MT Bold', 'Arial', sans-serif;
+}
+.action-buttons {
+  display: flex;
+  gap: 2vw;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2vw;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  background: linear-gradient(180deg, #FFEB3B 0%, #FFC107 100%);
+  color: #003366;
+  border: 0.12rem solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.8rem;
+  padding: clamp(8px, 1.2vw, 14px) clamp(16px, 3.5vw, 26px); /* 横パディングを少し増やした */
+  font-size: clamp(12px, 2vw, 16px);
+  min-width: clamp(100px, 22vw, 160px); /* 幅を少し広げた */
+  max-width: clamp(160px, 40vw, 260px);
+  box-shadow: 0 0.4vw 0.8vw rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.12s;
+  font-family: 'Rounded Mplus 1c', 'Nico Moji', sans-serif;
+}
+.action-btn:hover {
+  filter: brightness(0.98);
+}
+.action-btn:active {
+  transform: translateY(0.2vw);
+  box-shadow: 0 0.2vw 0.4vw rgba(0,0,0,0.12);
 }
