@@ -135,12 +135,12 @@ async function loadItemsFromSheet(column = 'A') {
 
     console.log('loadItemsFromSheet: items =', items);
 
-    // 固定で20分割の虹色パレットを作り、items に対して循環割当する
-    const palette20 = Array.from({ length: 20 }, (_, j) => {
-      const hue = Math.round((j / 20) * 360);
-      return `hsl(${hue}, 90%, 55%)`;
+    // items.length に合わせて一周（0〜360°）を等分した虹色を生成
+    const n = Math.max(1, items.length);
+    colors = Array.from({ length: n }, (_, j) => {
+      const hue = Math.round((j / n) * 360);
+      return `hsl(${hue}, 75%, 55%)`; // 彩度/明度は必要に応じて調整
     });
-    colors = items.map((_, i) => palette20[i % 20]);
 
     // 描画（読み込み後に初回描画）
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -154,11 +154,12 @@ async function loadItemsFromSheet(column = 'A') {
       "右ちょん10m","頭のみ10m","足乗せ両足背中キャッチ","足足胸JUMP 25m","たまごちゃん 3m",
       "足足肩シュート","ももダッシュ25m","ショルダーロール","そうまリフティング 25m","地面バウンド3種類"
     ];
-    const palette20 = Array.from({ length: 20 }, (_, j) => {
-      const hue = Math.round((j / 20) * 360);
-      return `hsl(${hue}, 90%, 55%)`;
+    // フォールバックでも items.length に合わせて色を生成
+    const n2 = Math.max(1, items.length);
+    colors = Array.from({ length: n2 }, (_, j) => {
+      const hue = Math.round((j / n2) * 360);
+      return `hsl(${hue}, 75%, 55%)`;
     });
-    colors = items.map((_, i) => palette20[i % 20]);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawRoulette();
   }
