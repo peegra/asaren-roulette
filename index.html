@@ -63,13 +63,16 @@ const SHEET_GID = '233683813'; // 「ルーレット」シートの gid
 let colors = [];
 let angle = 0; // ルーレットの初期角度
 
-// スプレッドシート（CSV）から項目を読み込む
-async function loadItemsFromSheet() {
+// スプレッドシート（CSV）から項目を読み込む（列指定対応）
+async function loadItemsFromSheet(column = 'A') {
   try {
+    const colMap = { A: 0, B: 1, C: 2, D: 3 };
+    const colIndex = colMap[(column || 'A').toUpperCase()] ?? 0;
+
     // gviz endpoint を使いタイムスタンプで強制再取得
     const baseUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}`;
     const url = `${baseUrl}&t=${Date.now()}`;
-    console.log('fetching sheet url=', url);
+    console.log('fetching sheet url=', url, 'column=', column);
     const res = await fetch(url, {
       method: 'GET',
       cache: 'no-store',
@@ -83,21 +86,52 @@ async function loadItemsFromSheet() {
 
     const text = await res.text();
     console.log('loadItemsFromSheet: fetched length=', text.length);
-    // デバッグ: 先頭をログに出す（長すぎないよう）
     console.log('loadItemsFromSheet: sample=', text.slice(0, 500).replace(/\n/g,'\\n'));
-    const rows = text.split(/\r?\n/).map(r => r.trim()).filter(r => r.length > 0);
 
-    // CSV の各行から「A列（1列目）」だけを取り出す
-    // 1列目は引用符で囲まれている場合や "" エスケープにも対応
-    items = rows.map(line => {
-      const m = line.match(/^("(?:[^"]|"")*"|[^,]*)/);
-      let first = m ? m[1] : '';
-      if (!first) return '';
-      if (first.startsWith('"') && first.endsWith('"')) {
-        first = first.slice(1, -1).replace(/""/g, '"');
+    const rows = text.split(/\r?\n/);
+
+    // 安全なCSVパーサ：先頭から必要な列だけ抽出（引用符と "" エスケープ対応）
+    function parseColumnFromCsvLine(line, index) {
+      let inQuotes = false;
+      let cur = '';
+      let col = 0;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          // "" は1つの " として扱う
+          if (inQuotes && line[i + 1] === '"') {
+            cur += '"';
+            i++; // skip escaped quote
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === ',' && !inQuotes) {
+          if (col === index) return cur.trim();
+          col++;
+          cur = '';
+          // 早期終了：必要列を超えたら空で返す
+          if (col > index) return '';
+        } else {
+          cur += ch;
+        }
       }
-      return first.trim();
-    }).filter(v => v.length > 0); // 空行除去
+      // 最後のカラム
+      if (col === index) return cur.trim();
+      return '';
+    }
+
+    // 各行から指定列を取り出し、空行は除去
+    items = [];
+    for (let i = 0; i < rows.length; i++) {
+      const raw = rows[i].trim();
+      if (!raw) continue;
+      try {
+        const val = parseColumnFromCsvLine(raw, colIndex);
+        if (val && val.length > 0) items.push(val);
+      } catch (err) {
+        console.error('CSV parse error at line', i + 1, 'len=', raw.length, err);
+      }
+    }
 
     console.log('loadItemsFromSheet: items =', items);
 
@@ -113,7 +147,7 @@ async function loadItemsFromSheet() {
     drawRoulette();
   } catch (e) {
     console.error('loadItemsFromSheet error:', e);
-    // フォールバックの項目（既存の固定リストを入れるなど）
+    // フォールバックの項目
     items = [
       "足足頭頭25m","世界逆一周","3タッチ回転3回","胸キャッチ2回","JUMPトラップ5m x 5回",
       "アラウンドザワールド","インインアウトアウト 10周","右肩 6回","アウト乗せ 3回","背中キャッチ 2回",
@@ -276,7 +310,14 @@ document.getElementById('spin').addEventListener('click', async function() {
   spinRoulette();
 });
 
-// 更新ボタンとそのイベントリスナーを削除しました
+// ボタンで列指定して読み込む（左から A,B,C,D）
+document.getElementById('btn-shoot').addEventListener('click', () => loadItemsFromSheet('A'));
+document.getElementById('btn-juggle').addEventListener('click', () => loadItemsFromSheet('B'));
+document.getElementById('btn-tech').addEventListener('click', () => loadItemsFromSheet('C'));
+document.getElementById('btn-beginner').addEventListener('click', () => loadItemsFromSheet('D'));
+
+// 初回は毎回 A 列を表示
+loadItemsFromSheet('A');
 </script>
 
 <script>
